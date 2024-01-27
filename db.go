@@ -152,7 +152,7 @@ func (d *Db) GetUser(name string) (*User, error) {
 
 	user := new(User)
 
-	row := d.handle.QueryRow("SELECT `u`.`name`, `p`.`host`, `p`.`port`, `u`.`user`, `u`.`password`, `h`.`hash`, `h`.`divider` FROM `users` AS `u` INNER JOIN `pools` AS `p` ON `u`.`pool_id` = `p`.`id` INNER JOIN `hashes` AS `h` ON `p`.`hash_id` = `h`.`id` WHERE `u`.`name` = $1;", user.user)
+	row := d.handle.QueryRow("SELECT `u`.`name`, `p`.`host`, `p`.`port`, `u`.`user`, `u`.`password`, `h`.`hash`, `h`.`divider` FROM `users` AS `u` INNER JOIN `pools` AS `p` ON `u`.`pool_id` = `p`.`id` INNER JOIN `hashes` AS `h` ON `p`.`hash_id` = `h`.`id` WHERE `u`.`user` = $1;", name)
 	err := row.Scan(&user.name, &host, &port, &user.user, &user.password, &user.hash, &user.divider)
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("user with name = %s not found", name)
