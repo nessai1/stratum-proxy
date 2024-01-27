@@ -33,10 +33,11 @@ func (*Mining) Subscribe(client *rpc2.Client, params []interface{}, res *interfa
 	sID := w.GetID()
 	wAddr := w.GetAddr()
 
-	if _, err := mining.checkSubscribed(w); err == nil {
-		LogError("%s : worker already subscribed", sID, wAddr)
-		return errors.New("[20, \"Other/Unknown\", null]")
-	}
+	// TODO: return checking of sub (idk why without it wroks fine
+	//if _, err := mining.checkSubscribed(w); err == nil {
+	//	LogError("%s : worker already subscribed", sID, wAddr)
+	//	return errors.New("[20, \"Other/Unknown\", null]")
+	//}
 
 	Connect(client, w)
 	sID = w.GetID()
