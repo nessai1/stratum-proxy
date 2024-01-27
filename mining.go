@@ -427,7 +427,9 @@ func (*Mining) Configure(client *rpc2.Client, params []interface{}, res *interfa
 	}
 
 	a := new(MiningConfigureResponse)
-	a.extensions = w.pool.extensions
+
+	// a.extensions = w.pool.extensions was before
+	a.extensions = w.extensions
 
 	data, err := a.Encode()
 	*res = &data

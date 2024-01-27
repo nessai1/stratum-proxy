@@ -22,71 +22,7 @@ var (
 	}
 	data = []string{
 		"INSERT INTO `hashes` (`hash`, `divider`) VALUES ('sha256', 1.0)",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('cn.ss.btc.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('cn.ss.btc.com', 1800, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('121.29.19.24', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sz.ss.btc.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sz.ss.btc.com', 1800, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('us.ss.btc.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('us.ss.btc.com', 1800, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('eu.ss.btc.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('eu.ss.btc.com', 1800, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc.f2pool.com', 1314, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc.f2pool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc-us.f2pool.com', 1314, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc-us.f2pool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc-eu.f2pool.com', 1314, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc-eu.f2pool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc-bj.ss.poolin.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc-bj.ss.poolin.com', 1883, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc-va.ss.poolin.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc-va.ss.poolin.com', 1883, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('stratum.antpool.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('stratum.antpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc.viabtc.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('btc.viabtc.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('stratum.poolhb.com', 8888, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bak.poolhb.com', 8888, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('hk.huobipool.com', 8888, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bn.huobipool.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bn.huobipool.com', 1800, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bn.huobipool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bs.huobipool.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bs.huobipool.com', 1800, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bs.huobipool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bm.huobipool.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bm.huobipool.com', 1800, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bm.huobipool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bu.huobipool.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bu.huobipool.com', 1800, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('bu.huobipool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('cn.stratum.slushpool.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('cn.stratum.slushpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('cn02.stratum.slushpool.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('cn02.stratum.slushpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('cn03.stratum.slushpool.com', 443, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('cn03.stratum.slushpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('us-east.stratum.slushpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('eu.stratum.slushpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('ca.stratum.slushpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sg.stratum.slushpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('jp.stratum.slushpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.hk.nicehash.com', 3334, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.usa.nicehash.com', 3334, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.eu.nicehash.com', 3334, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.jp.nicehash.com', 3334, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.in.nicehash.com', 3334, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.br.nicehash.com', 3334, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('cn.emcd.io', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('us.emcd.io', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('eu.emcd.io', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('eu2.emcd.io', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('gate.emcd.io', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('ir.emcd.io', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.sea.mine.zpool.ca', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.na.mine.zpool.ca', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.eu.mine.zpool.ca', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
-		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('sha256.jp.mine.zpool.ca', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
+		"INSERT INTO `pools` (`host`, `port`, `hash_id`) VALUES ('ss.antpool.com', 3333, (SELECT `id` FROM `hashes` WHERE `hash` = 'sha256'))",
 	}
 )
 
@@ -181,12 +117,6 @@ AddUser - the addding of the user to the database.
 @return error
 */
 func (d *Db) AddUser(user *User) error {
-	name := user.GetName()
-
-	if !ValidateHexString(name) {
-		return fmt.Errorf("invalid format user.name = %s", name)
-	}
-
 	id, err := d.GetPool(user.pool)
 	if err != nil {
 		return err
@@ -213,18 +143,16 @@ GetUser - the getting of the user from the database.
 @param string name user name.
 
 @return *User the pointer to the founded user.
-        error
+
+	error
 */
 func (d *Db) GetUser(name string) (*User, error) {
 	var host string
 	var port int
 
-	if !ValidateHexString(name) {
-		return nil, fmt.Errorf("invalid format name = %s", name)
-	}
 	user := new(User)
 
-	row := d.handle.QueryRow("SELECT `u`.`name`, `p`.`host`, `p`.`port`, `u`.`user`, `u`.`password`, `h`.`hash`, `h`.`divider` FROM `users` AS `u` INNER JOIN `pools` AS `p` ON `u`.`pool_id` = `p`.`id` INNER JOIN `hashes` AS `h` ON `p`.`hash_id` = `h`.`id` WHERE `u`.`name` = $1;", name)
+	row := d.handle.QueryRow("SELECT `u`.`name`, `p`.`host`, `p`.`port`, `u`.`user`, `u`.`password`, `h`.`hash`, `h`.`divider` FROM `users` AS `u` INNER JOIN `pools` AS `p` ON `u`.`pool_id` = `p`.`id` INNER JOIN `hashes` AS `h` ON `p`.`hash_id` = `h`.`id` WHERE `u`.`name` = $1;", user.user)
 	err := row.Scan(&user.name, &host, &port, &user.user, &user.password, &user.hash, &user.divider)
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("user with name = %s not found", name)
@@ -244,7 +172,8 @@ GetUserByPool - the getting of the user by the pool and the user name of the poo
 @param string user the name of the user.
 
 @return *User the pointer to the founded user.
-        error
+
+	error
 */
 func (d *Db) GetUserByPool(pool string, user string) (*User, error) {
 	id, err := d.GetPool(pool)
@@ -278,7 +207,8 @@ GetPool - the getting of the pool by his data.
 @param string pool the pool of the user in format addr:port.
 
 @return uint64 the identifier of the pool.
-        error
+
+	error
 */
 func (d *Db) GetPool(pool string) (uint64, error) {
 	var id uint64
