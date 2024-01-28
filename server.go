@@ -50,6 +50,8 @@ var (
 	dbPath = "proxy.db"
 	// Metrics proxy tag.
 	tag = ""
+	// Common pool size of work
+	commonPoolSize = 2
 )
 
 /*
@@ -61,6 +63,7 @@ func main() {
 	flag.BoolVar(&syslog, "syslog", false, "On true adapt log to out in syslog, hide date and colors")
 	flag.StringVar(&dbPath, "db.path", "proxy.db", "Filepath for SQLite database")
 	flag.StringVar(&tag, "metrics.tag", stratumAddr, "Prometheus metrics proxy tag")
+	flag.IntVar(&commonPoolSize, "cpsize", 2, "Size of common pool work (Percent of miners work from all work to common pool)")
 	flag.Parse()
 
 	if syslog {

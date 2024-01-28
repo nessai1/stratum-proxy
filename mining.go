@@ -320,11 +320,11 @@ func (*Mining) Notify(client *rpc2.Client, params []interface{}, res *interface{
 	wAddr := w.addr
 	wClient := w.client
 	pAddr := w.pool.addr
-
+	hashrate := w.hashrate
 	w.pool.job = params
 	w.mutex.Unlock()
 
-	LogInfo("%s > mining.notify: %s", sID, pAddr, jobID)
+	LogInfo("%s > mining.notify: %s\t|\t current hashrate: %f", sID, pAddr, jobID, hashrate)
 	if wClient != nil {
 		LogInfo("%s < mining.notify: %s", sID, wAddr, jobID)
 		wClient.Notify("mining.notify", params)

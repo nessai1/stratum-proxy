@@ -34,6 +34,7 @@ type Worker struct {
 	window     map[int64]float64      // Shares counter window.
 	client     *rpc2.Client           // Pointer on connection to worker.
 	extensions map[string]interface{} // Extensions of the worker.
+	hashrate   float64                // Hashrate of individual pipeline pool
 	pool       struct {
 		addr            string                 // ip:port.
 		user            string                 // User.
@@ -596,6 +597,10 @@ func (w *Worker) UpdateHashrate() {
 			mSpeed.WithLabelValues(tag, wAddr, wUser, wHash, pAddr).Set(hashrate)
 		}
 		LogInfo("%s : hashrate: %.0f h/s", sID, wAddr, hashrate)
+
+		w.mutex.RLock()
+		w.hashrate = hashrate
+		w.mutex.RUnlock()
 
 	}
 	LogInfo("%s : stop hashrate calculation", sID, wAddr)
