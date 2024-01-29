@@ -1,16 +1,36 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"github.com/miningmeter/rpc2"
+	"github.com/miningmeter/rpc2/stratumrpc"
+	"net"
 	"sync"
+	"time"
 )
 
 /*
 Workers - array of connected workers.
 */
 type Workers struct {
-	mutex   sync.RWMutex
-	workers map[string]*Worker
+	mutex        sync.RWMutex
+	workers      map[string]*Worker
+	commonWorker *CommonWorker
+}
+
+type CommonWorker struct {
+	client *rpc2.Client
+}
+
+func (cw *CommonWorker) handleNotify(client *rpc2.Client, params []interface{}, res *interface{}) error {
+	LogInfo("Got new notify", "COMMON_WORKER")
+	return nil
+}
+
+func (cw *CommonWorker) handleSetDifficulty(client *rpc2.Client, params []interface{}, res *interface{}) error {
+	LogInfo("Got new set difficulty", "COMMON_WORKER")
+	return nil
 }
 
 func (w *Workers) add(worker *Worker) bool {
@@ -39,6 +59,46 @@ func (w *Workers) remove(id string) {
 	}
 
 	return
+}
+
+func (w *Workers) InitCommonWorker(addr, login, password string) error {
+
+	// Connecting to the pool.
+	conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Cannot connect to common pool: %s", err.Error()))
+	}
+
+	client := rpc2.NewClientWithCodec(stratumrpc.NewStratumCodec(conn))
+	cw := CommonWorker{client: client}
+
+	client.Handle("mining.notify", cw.handleNotify)
+	client.Handle("mining.set_difficulty", cw.handleSetDifficulty)
+
+	go client.Run()
+
+	// Sending authorize command to the pool.
+	msgAuth := MiningAuthorizeRequest{login, password}
+	params, err := msgAuth.Encode()
+	if err != nil {
+		return errors.New(fmt.Sprintf("Cannot authorize %s by %s: %s", addr, login, err.Error()))
+	}
+
+	var breply bool
+	err = client.Call("mining.authorize", params, &breply)
+	if err != nil {
+		return fmt.Errorf("got error while call authorize for common method: %s", err)
+	}
+
+	if !breply {
+		return errors.New("access to the common pool denied")
+	}
+
+	w.mutex.Lock()
+	w.commonWorker = &cw
+	w.mutex.Unlock()
+
+	return nil
 }
 
 /*
@@ -81,7 +141,8 @@ Get - getting worker by his id.
 @param string id - id of worker.
 
 @return *Worker pointer to founded worker.
-        error
+
+	error
 */
 func (w *Workers) Get(id string) (*Worker, error) {
 	if !ValidateHexString(id) {

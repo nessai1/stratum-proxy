@@ -24,6 +24,7 @@ Worker - it is worker. It's all.
 */
 type Worker struct {
 	mutex      sync.RWMutex
+	isBusyByCP bool
 	ua         string                 // User Agent.
 	id         string                 // ID.
 	addr       string                 // ip:port.

@@ -6,10 +6,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net"
 	"os"
 	"regexp"
+	"strconv"
 	"time"
 
 	rpc2 "github.com/miningmeter/rpc2"
@@ -31,10 +34,6 @@ var (
 	workers Workers
 	// Db of users credentials.
 	db Db
-	// Stratum endpoint.
-	stratumAddr = "127.0.0.1:9332"
-	// API endpoint.
-	webAddr = "127.0.0.1:8080"
 	// Out to syslog.
 	syslog = false
 	// GitCommit - Git commit for build
@@ -50,21 +49,77 @@ var (
 	dbPath = "proxy.db"
 	// Metrics proxy tag.
 	tag = ""
-	// Common pool size of work
-	commonPoolSize = 2
 )
+
+// ProxyConfig main configuration fields of proxy that fetching from .env
+type ProxyConfig struct {
+	APIAddr   string
+	ProxyAddr string
+
+	// Info for common proxy connection
+	CPSize     int
+	CPAddr     string
+	CPLogin    string
+	CPPassword string
+}
+
+func fetchProxyConfig() (*ProxyConfig, error) {
+	if err := godotenv.Load(); err != nil {
+		return nil, fmt.Errorf("cannot load .env: %w", err)
+	}
+
+	// TODO: add validation of find
+	apiAddr, apiFound := os.LookupEnv("API_ADDR")
+	if !apiFound {
+		return nil, fmt.Errorf("cannot find api addr")
+	}
+
+	proxyAddr, proxyFound := os.LookupEnv("PROXY_ADDR")
+	if !proxyFound {
+		return nil, fmt.Errorf("cannot find proxy addr")
+	}
+
+	var cpSize int
+	var err error
+
+	cpSizeStr, sizeFined := os.LookupEnv("CP_SIZE")
+	if !sizeFined {
+		cpSize = 0
+	} else {
+		cpSize, err = strconv.Atoi(cpSizeStr)
+		if err != nil {
+			return nil, fmt.Errorf("cannot convert CP_SIZE: %w", err)
+		}
+	}
+
+	cpAddr, _ := os.LookupEnv("CP_ADDR")
+	cpLogin, _ := os.LookupEnv("CP_LOGIN")
+	cpPassword, _ := os.LookupEnv("CP_PASSWORD")
+
+	return &ProxyConfig{
+		APIAddr:   apiAddr,
+		ProxyAddr: proxyAddr,
+
+		CPSize:     cpSize,
+		CPAddr:     cpAddr,
+		CPLogin:    cpLogin,
+		CPPassword: cpPassword,
+	}, nil
+}
 
 /*
 Main function.
 */
 func main() {
-	flag.StringVar(&stratumAddr, "stratum.addr", "127.0.0.1:9332", "Address and port for stratum")
-	flag.StringVar(&webAddr, "web.addr", "127.0.0.1:8080", "Address and port for web server and metrics")
 	flag.BoolVar(&syslog, "syslog", false, "On true adapt log to out in syslog, hide date and colors")
 	flag.StringVar(&dbPath, "db.path", "proxy.db", "Filepath for SQLite database")
-	flag.StringVar(&tag, "metrics.tag", stratumAddr, "Prometheus metrics proxy tag")
-	flag.IntVar(&commonPoolSize, "cpsize", 2, "Size of common pool work (Percent of miners work from all work to common pool)")
+	flag.StringVar(&tag, "metrics.tag", "127.0.0.1:8080", "Prometheus metrics proxy tag") // TODO
 	flag.Parse()
+
+	proxyConfig, err := fetchProxyConfig()
+	if err != nil {
+		panic(fmt.Errorf("cannot load proxy config: %w", err))
+	}
 
 	if syslog {
 		log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
@@ -76,18 +131,26 @@ func main() {
 		os.Exit(1)
 	}
 	defer db.Close()
+
+	if proxyConfig.CPSize > 0 {
+		err = workers.InitCommonWorker(proxyConfig.CPAddr, proxyConfig.CPLogin, proxyConfig.CPPassword)
+		if err != nil {
+			panic(fmt.Errorf("cannot start common worker: %w", err))
+		}
+	}
+
 	// Inintializing of internal storage.
 	workers.Init()
 
 	// Initializing of API and metrics.
-	LogInfo("proxy : web server serve on: %s", "", webAddr)
+	LogInfo("proxy : web server serve on: %s", "", proxyConfig.APIAddr)
 	// Users.
 	http.Handle("/api/v1/users", &API{})
 	// Metrics.
 	http.Handle("/metrics", promhttp.Handler())
-	go http.ListenAndServe(webAddr, nil)
+	go http.ListenAndServe(proxyConfig.APIAddr, nil)
 
-	InitWorkerServer()
+	InitWorkerServer(proxyConfig.ProxyAddr)
 
 	os.Exit(0)
 }
@@ -95,7 +158,7 @@ func main() {
 /*
 InitWorkerServer - initializing of server for workers connects.
 */
-func InitWorkerServer() {
+func InitWorkerServer(stratumAddr string) {
 	// Launching of JSON-RPC server.
 	server := rpc2.NewServer()
 	// Subscribing of server to needed handlers.
