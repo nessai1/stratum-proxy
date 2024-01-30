@@ -21,6 +21,8 @@ type Workers struct {
 
 type CommonWorker struct {
 	client *rpc2.Client
+
+	receiver chan MiningSubmitRequest
 }
 
 func (cw *CommonWorker) handleNotify(client *rpc2.Client, params []interface{}, res *interface{}) error {
@@ -37,6 +39,10 @@ func (w *Workers) add(worker *Worker) bool {
 	id := worker.GetID()
 
 	if wr := w.get(id); wr == nil {
+		worker.mutex.Lock()
+		worker.commonPoolResult = w.commonWorker.receiver
+		worker.mutex.Unlock()
+
 		w.workers[id] = worker
 	} else {
 		return false

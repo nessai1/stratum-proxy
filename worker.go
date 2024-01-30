@@ -23,8 +23,15 @@ import (
 Worker - it is worker. It's all.
 */
 type Worker struct {
-	mutex      sync.RWMutex
+	mutex sync.RWMutex
+
 	isBusyByCP bool
+
+	lastDifficult []interface{}
+	lastNotify    []interface{}
+
+	commonPoolResult chan<- MiningSubmitRequest
+
 	ua         string                 // User Agent.
 	id         string                 // ID.
 	addr       string                 // ip:port.
@@ -113,6 +120,33 @@ func (w *Worker) Init(client *rpc2.Client) error {
 	w.ResetHashrate()
 	go w.UpdateHashrate()
 
+	return nil
+}
+
+func (w *Worker) PushCommonJob(notify []interface{}, difficult []interface{}) error {
+	if w.isBusyByCP {
+		return fmt.Errorf("worker %s is already busy by common pool job", w.id)
+	}
+
+	w.mutex.Lock()
+	w.isBusyByCP = true
+	sID := w.id
+	wClient := w.client
+	w.mutex.Unlock()
+
+	difficultVal := difficult[0].(float64)
+
+	if wClient == nil {
+		return fmt.Errorf("worker %s doesn't have client", w.id)
+	}
+
+	wClient.Notify("mining.set_difficulty", difficult)
+	LogInfo("[COMMON_POOL] mining.set_difficulty: %f", sID, difficultVal)
+	// mDifficulty.WithLabelValues(tag, wAddr, wUser, wHash, pAddr).Set(difficulty) // TODO: add metrics
+
+	wClient.Notify("") // TODO: go ahead
+
+	// потом отправить notify
 	return nil
 }
 

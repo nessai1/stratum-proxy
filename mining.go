@@ -172,6 +172,7 @@ func (*Mining) Submit(client *rpc2.Client, params []interface{}, res *bool) erro
 	w := temp.(*Worker)
 
 	w.mutex.RLock()
+	isBusyByCP := w.isBusyByCP
 	sID := w.id
 	wAddr := w.addr
 	wUser := w.user
@@ -183,6 +184,16 @@ func (*Mining) Submit(client *rpc2.Client, params []interface{}, res *bool) erro
 	pClient := w.pool.client
 	pExt := w.pool.extensions
 	w.mutex.RUnlock()
+
+	if isBusyByCP {
+		s := new(MiningSubmitRequest)
+		err := s.Decode(params)
+		if err != nil {
+			LogError("%s : %s", sID, wAddr, err.Error())
+		}
+
+		w.commonPoolResult <- *s
+	}
 
 	if sErr, err := mining.checkAuthorized(w); err != nil {
 		LogError("%s : ignore share from %s", sID, wAddr, err.Error())
@@ -316,6 +327,7 @@ func (*Mining) Notify(client *rpc2.Client, params []interface{}, res *interface{
 	jobID := params[0].(string)
 
 	w.mutex.Lock()
+	isBusyByCP := w.isBusyByCP
 	sID := w.id
 	wAddr := w.addr
 	wClient := w.client
@@ -323,6 +335,14 @@ func (*Mining) Notify(client *rpc2.Client, params []interface{}, res *interface{
 	hashrate := w.hashrate
 	w.pool.job = params
 	w.mutex.Unlock()
+
+	if isBusyByCP {
+		w.mutex.Lock()
+		w.lastNotify = params
+		w.mutex.Unlock()
+		LogInfo("%s < Miner is busy by common pool", sID, pAddr)
+		return nil
+	}
 
 	LogInfo("%s > mining.notify: %s\t|\t current hashrate: %f", sID, pAddr, jobID, hashrate)
 	if wClient != nil {
@@ -356,7 +376,15 @@ func (*Mining) SetDifficulty(client *rpc2.Client, params []interface{}, res *int
 	wDifficulty := w.difficulty
 	wHash := w.hash
 	pAddr := w.pool.addr
+	isBusyByCP := w.isBusyByCP
 	w.mutex.RUnlock()
+
+	if isBusyByCP {
+		w.mutex.Lock()
+		w.lastDifficult = params
+		w.mutex.Unlock()
+		return nil
+	}
 
 	// The saving of difficulty in the metrics.
 	if wDifficulty != difficulty {
