@@ -189,10 +189,17 @@ func (*Mining) Submit(client *rpc2.Client, params []interface{}, res *bool) erro
 		s := new(MiningSubmitRequest)
 		err := s.Decode(params)
 		if err != nil {
-			LogError("%s : %s", sID, wAddr, err.Error())
+			LogError("Cannot decode common worker result: %s", sID, err.Error())
 		}
 
-		w.commonPoolResult <- *s
+		result := CommonWorkSubmit{
+			submitRequest:    *s,
+			params:           params,
+			workerExtensions: wExt,
+		}
+
+		w.commonPoolResult <- result
+		return nil
 	}
 
 	if sErr, err := mining.checkAuthorized(w); err != nil {

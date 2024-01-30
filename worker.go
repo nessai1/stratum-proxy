@@ -4,6 +4,7 @@ Worker.
 package main
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
@@ -25,12 +26,11 @@ Worker - it is worker. It's all.
 type Worker struct {
 	mutex sync.RWMutex
 
-	isBusyByCP bool
-
-	lastDifficult []interface{}
-	lastNotify    []interface{}
-
-	commonPoolResult chan<- MiningSubmitRequest
+	isBusyByCP       bool
+	commonPoolCtx    context.Context
+	commonPoolResult chan<- CommonWorkSubmit
+	lastDifficult    []interface{}
+	lastNotify       []interface{}
 
 	ua         string                 // User Agent.
 	id         string                 // ID.
@@ -144,7 +144,10 @@ func (w *Worker) PushCommonJob(notify []interface{}, difficult []interface{}) er
 	LogInfo("[COMMON_POOL] mining.set_difficulty: %f", sID, difficultVal)
 	// mDifficulty.WithLabelValues(tag, wAddr, wUser, wHash, pAddr).Set(difficulty) // TODO: add metrics
 
-	wClient.Notify("") // TODO: go ahead
+	// clean current job for worker and set common job
+	notify[8] = true
+	wClient.Notify("mining.notify", notify)
+	LogInfo("[COMMON_POOL] mining.notify", sID)
 
 	// потом отправить notify
 	return nil

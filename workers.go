@@ -19,52 +19,95 @@ type Workers struct {
 	commonWorker *CommonWorker
 }
 
+type CommonWorkSubmit struct {
+	params           []interface{}
+	submitRequest    MiningSubmitRequest
+	workerExtensions map[string]interface{}
+}
+
 type CommonWorker struct {
+	mutex sync.RWMutex
+
+	poolDifficult interface{}
+
+	canReceiveNewJob bool
+
+	poolAddr     string
+	cwUserName   string
+	cwExtensions map[string]interface{}
+
 	client *rpc2.Client
 
-	receiver chan MiningSubmitRequest
+	receiver chan CommonWorkSubmit
 }
 
 func (cw *CommonWorker) handleNotify(client *rpc2.Client, params []interface{}, res *interface{}) error {
-	LogInfo("Got new notify", "COMMON_WORKER")
+	cw.mutex.Lock()
+	canReceiveNewJob := cw.canReceiveNewJob
+	difficult := cw.poolDifficult
+	cw.mutex.Unlock()
+
+	if !canReceiveNewJob {
+		return nil
+	}
+
+	// TODO need to notify
+
 	return nil
 }
 
 func (cw *CommonWorker) handleSetDifficulty(client *rpc2.Client, params []interface{}, res *interface{}) error {
-	LogInfo("Got new set difficulty", "COMMON_WORKER")
+	cw.mutex.Lock()
+	cw.poolDifficult = params
+	cw.mutex.Unlock()
+
 	return nil
 }
 
-func (w *Workers) add(worker *Worker) bool {
-	id := worker.GetID()
+func (cw *CommonWorker) ListenJobs() {
+	for req := range cw.receiver {
+		cw.handleJob(req)
 
-	if wr := w.get(id); wr == nil {
-		worker.mutex.Lock()
-		worker.commonPoolResult = w.commonWorker.receiver
-		worker.mutex.Unlock()
+		cw.mutex.Lock()
+		cw.canReceiveNewJob = true
+		cw.mutex.Unlock()
+	}
+}
 
-		w.workers[id] = worker
+func (cw *CommonWorker) handleJob(req CommonWorkSubmit) {
+	isRoll := req.submitRequest.versionbits != ""
+
+	if isRoll {
+		LogInfo("%s > mining.submit (isRoll): %s, %s, %s", "COMMON POOL", cw.poolAddr, req.submitRequest.job, req.submitRequest.nonce, req.submitRequest.versionbits)
 	} else {
-		return false
+		LogInfo("%s > mining.submit: %s, %s", "COMMON POOL", cw.poolAddr, req.submitRequest.job, req.submitRequest.nonce)
 	}
 
-	return true
-}
-
-func (w *Workers) get(id string) *Worker {
-	if worker, ok := w.workers[id]; ok {
-		return worker
+	// The checking compatability of the share and the extensions of the worker.
+	wRoll, wIsRoll := req.workerExtensions["version-rolling"]
+	pRoll, pIsRoll := cw.cwExtensions["version-rolling"]
+	if isRoll && (!wIsRoll || !wRoll.(bool)) {
+		LogError("ignore share from miner without version rolling", "COMMON POOL")
+		return
+	}
+	if isRoll && (!pIsRoll || !pRoll.(bool)) {
+		LogError("ignore share to pool without version rolling", "COMMON POOL")
+		return
+	}
+	if !isRoll && (wIsRoll && wRoll.(bool)) {
+		LogError("ignore share from miner with version rolling", "COMMON POOL")
+		return
+	}
+	if !isRoll && (pIsRoll && pRoll.(bool)) {
+		LogError("ignore share to pool with version rolling", "COMMON POOL")
+		return
 	}
 
-	return nil
-}
-
-func (w *Workers) remove(id string) {
-	if worker := w.get(id); worker != nil {
-		delete(w.workers, id)
+	req.params[0] = cw.cwUserName
+	err := cw.client.Call("mining.submit", req.params, nil)
+	if err != nil {
+		LogError("ERROR WHILE SUBMIT TO COMMON POOL", "COMMON POOL")
 	}
-
-	return
 }
 
 func (w *Workers) InitCommonWorker(addr, login, password string) error {
@@ -105,6 +148,38 @@ func (w *Workers) InitCommonWorker(addr, login, password string) error {
 	w.mutex.Unlock()
 
 	return nil
+}
+
+func (w *Workers) add(worker *Worker) bool {
+	id := worker.GetID()
+
+	if wr := w.get(id); wr == nil {
+		worker.mutex.Lock()
+		worker.commonPoolResult = w.commonWorker.receiver
+		worker.mutex.Unlock()
+
+		w.workers[id] = worker
+	} else {
+		return false
+	}
+
+	return true
+}
+
+func (w *Workers) get(id string) *Worker {
+	if worker, ok := w.workers[id]; ok {
+		return worker
+	}
+
+	return nil
+}
+
+func (w *Workers) remove(id string) {
+	if worker := w.get(id); worker != nil {
+		delete(w.workers, id)
+	}
+
+	return
 }
 
 /*
