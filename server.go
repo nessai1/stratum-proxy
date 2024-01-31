@@ -132,15 +132,15 @@ func main() {
 	}
 	defer db.Close()
 
+	// Inintializing of internal storage.
+	workers.Init()
+
 	if proxyConfig.CPSize > 0 {
 		err = workers.InitCommonWorker(proxyConfig.CPAddr, proxyConfig.CPLogin, proxyConfig.CPPassword)
 		if err != nil {
 			panic(fmt.Errorf("cannot start common worker: %w", err))
 		}
 	}
-
-	// Inintializing of internal storage.
-	workers.Init()
 
 	// Initializing of API and metrics.
 	LogInfo("proxy : web server serve on: %s", "", proxyConfig.APIAddr)

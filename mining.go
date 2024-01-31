@@ -199,6 +199,9 @@ func (*Mining) Submit(client *rpc2.Client, params []interface{}, res *bool) erro
 		}
 
 		w.commonPoolResult <- result
+		w.mutex.Lock()
+		w.isBusyByCP = false
+		w.mutex.Unlock()
 		return nil
 	}
 

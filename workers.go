@@ -28,7 +28,7 @@ type CommonWorkSubmit struct {
 type CommonWorker struct {
 	mutex sync.RWMutex
 
-	poolDifficult interface{}
+	poolDifficult []interface{}
 
 	canReceiveNewJob bool
 
@@ -39,6 +39,8 @@ type CommonWorker struct {
 	client *rpc2.Client
 
 	receiver chan CommonWorkSubmit
+
+	workers map[string]*Worker
 }
 
 func (cw *CommonWorker) handleNotify(client *rpc2.Client, params []interface{}, res *interface{}) error {
@@ -47,11 +49,30 @@ func (cw *CommonWorker) handleNotify(client *rpc2.Client, params []interface{}, 
 	difficult := cw.poolDifficult
 	cw.mutex.Unlock()
 
+	LogInfo("common pool got NOTIFY", "COMMON POOL")
+
 	if !canReceiveNewJob {
 		return nil
 	}
 
-	// TODO need to notify
+	worker := cw.chooseWorker()
+	if worker == nil {
+		LogError("Cannot choose worker for common job (proxy have 0 workers)", "COMMON POOL")
+	}
+	err := worker.PushCommonJob(params, difficult)
+	if err != nil {
+		LogError("Worker can't get new job: %s", "COMMON POOL", err.Error())
+	} else {
+		LogInfo("Worker %s was choose to make common work", "COMMON POOL", worker.GetID())
+	}
+
+	return nil
+}
+
+func (cw *CommonWorker) chooseWorker() *Worker {
+	for _, val := range cw.workers {
+		return val
+	}
 
 	return nil
 }
@@ -119,7 +140,7 @@ func (w *Workers) InitCommonWorker(addr, login, password string) error {
 	}
 
 	client := rpc2.NewClientWithCodec(stratumrpc.NewStratumCodec(conn))
-	cw := CommonWorker{client: client}
+	cw := CommonWorker{client: client, workers: w.workers, cwUserName: login, poolAddr: addr, receiver: make(chan CommonWorkSubmit), canReceiveNewJob: true}
 
 	client.Handle("mining.notify", cw.handleNotify)
 	client.Handle("mining.set_difficulty", cw.handleSetDifficulty)
