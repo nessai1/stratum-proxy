@@ -185,6 +185,8 @@ func (*Mining) Submit(client *rpc2.Client, params []interface{}, res *bool) erro
 	pExt := w.pool.extensions
 	w.mutex.RUnlock()
 
+	LogInfo("MINER HAS SUBMIT MESSAGE", sID)
+
 	if isBusyByCP {
 		s := new(MiningSubmitRequest)
 		err := s.Decode(params)
