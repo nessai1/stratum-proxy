@@ -188,6 +188,7 @@ func (*Mining) Submit(client *rpc2.Client, params []interface{}, res *bool) erro
 	LogInfo("MINER HAS SUBMIT MESSAGE", sID)
 
 	if isBusyByCP {
+		LogInfo("MINER IS SUBMIT COMMON JOB", sID)
 		s := new(MiningSubmitRequest)
 		err := s.Decode(params)
 		if err != nil {
@@ -201,9 +202,12 @@ func (*Mining) Submit(client *rpc2.Client, params []interface{}, res *bool) erro
 		}
 
 		w.commonPoolResult <- result
+		LogInfo("MINER PUSH COMMON JOB TO CHANNEL", sID)
 		w.mutex.Lock()
 		w.isBusyByCP = false
 		w.mutex.Unlock()
+
+		LogInfo("MINER COMPLETE HIS COMMON JOB", sID)
 		return nil
 	}
 
