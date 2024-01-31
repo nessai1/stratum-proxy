@@ -175,6 +175,8 @@ func (w *Workers) InitCommonWorker(addr, login, password string) error {
 func (w *Workers) add(worker *Worker) bool {
 	id := worker.GetID()
 
+	LogInfo("WORKER HAS ADDED TO WORKERS LIST", worker.id)
+
 	if wr := w.get(id); wr == nil {
 		worker.mutex.Lock()
 		worker.commonPoolResult = w.commonWorker.receiver
