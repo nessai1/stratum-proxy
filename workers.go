@@ -107,24 +107,24 @@ func (cw *CommonWorker) handleJob(req CommonWorkSubmit) {
 	}
 
 	// The checking compatability of the share and the extensions of the worker.
-	wRoll, wIsRoll := req.workerExtensions["version-rolling"]
-	pRoll, pIsRoll := cw.cwExtensions["version-rolling"]
-	if isRoll && (!wIsRoll || !wRoll.(bool)) {
-		LogError("ignore share from miner without version rolling", "COMMON POOL")
-		return
-	}
-	if isRoll && (!pIsRoll || !pRoll.(bool)) {
-		LogError("ignore share to pool without version rolling", "COMMON POOL")
-		return
-	}
-	if !isRoll && (wIsRoll && wRoll.(bool)) {
-		LogError("ignore share from miner with version rolling", "COMMON POOL")
-		return
-	}
-	if !isRoll && (pIsRoll && pRoll.(bool)) {
-		LogError("ignore share to pool with version rolling", "COMMON POOL")
-		return
-	}
+	//wRoll, wIsRoll := req.workerExtensions["version-rolling"]
+	//pRoll, pIsRoll := cw.cwExtensions["version-rolling"]
+	//if isRoll && (!wIsRoll || !wRoll.(bool)) {
+	//	LogError("ignore share from miner without version rolling", "COMMON POOL")
+	//	return
+	//}
+	//if isRoll && (!pIsRoll || !pRoll.(bool)) {
+	//	LogError("ignore share to pool without version rolling", "COMMON POOL")
+	//	return
+	//}
+	//if !isRoll && (wIsRoll && wRoll.(bool)) {
+	//	LogError("ignore share from miner with version rolling", "COMMON POOL")
+	//	return
+	//}
+	//if !isRoll && (pIsRoll && pRoll.(bool)) {
+	//	LogError("ignore share to pool with version rolling", "COMMON POOL")
+	//	return
+	//}
 
 	req.params[0] = cw.cwUserName
 	err := cw.client.Call("mining.submit", req.params, nil)

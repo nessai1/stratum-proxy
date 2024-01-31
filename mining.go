@@ -205,7 +205,12 @@ func (*Mining) Submit(client *rpc2.Client, params []interface{}, res *bool) erro
 		LogInfo("MINER PUSH COMMON JOB TO CHANNEL", sID)
 		w.mutex.Lock()
 		w.isBusyByCP = false
+		err = client.Notify("mining.set_difficult", w.lastNotify)
 		w.mutex.Unlock()
+
+		if err != nil {
+			LogInfo("CANNOT SEND NEW DIFFICULT AFTER COMMON JOB: %s", sID, err.Error())
+		}
 
 		LogInfo("MINER COMPLETE HIS COMMON JOB", sID)
 		return nil
