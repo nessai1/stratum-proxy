@@ -58,6 +58,7 @@ func (cw *CommonWorker) handleNotify(client *rpc2.Client, params []interface{}, 
 	worker := cw.chooseWorker()
 	if worker == nil {
 		LogError("Cannot choose worker for common job (proxy have 0 workers)", "COMMON POOL")
+		return nil
 	}
 	err := worker.PushCommonJob(params, difficult)
 	if err != nil {
