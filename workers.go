@@ -88,6 +88,7 @@ func (cw *CommonWorker) handleSetDifficulty(client *rpc2.Client, params []interf
 
 func (cw *CommonWorker) ListenJobs() {
 	for req := range cw.receiver {
+		LogInfo("COMMON WORKER GOT NEW JOB RESULT", "COMMON POOL")
 		cw.handleJob(req)
 
 		cw.mutex.Lock()
@@ -168,6 +169,8 @@ func (w *Workers) InitCommonWorker(addr, login, password string) error {
 	w.mutex.Lock()
 	w.commonWorker = &cw
 	w.mutex.Unlock()
+
+	go cw.ListenJobs()
 
 	return nil
 }
