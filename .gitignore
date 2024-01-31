@@ -1,5 +1,6 @@
 proxy.code-workspace
 proxy
+stratumproxy
 proxy.db
 .idea
 .env
