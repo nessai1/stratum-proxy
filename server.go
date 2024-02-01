@@ -177,7 +177,10 @@ func InitWorkerServer(stratumAddr string) {
 	LogInfo("proxy : listen on: %s", "", stratumAddr)
 
 	// Waiting of connections.
-	link, _ := net.Listen("tcp", stratumAddr)
+	link, err := net.Listen("tcp", stratumAddr)
+	if err != nil {
+		log.Fatalf("cannot start proxy listener: %s", err.Error())
+	}
 	for {
 		conn, err := link.Accept()
 		if err != nil {
