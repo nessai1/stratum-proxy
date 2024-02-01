@@ -65,6 +65,24 @@ func NewCommonWorker(addr, login, password string, workers map[string]*Worker) (
 		LogInfo("common pool configured!", "COMMON POOL")
 	}
 
+	re := new(MiningConfigureResponse)
+	err = re.Decode(areply)
+	if err != nil {
+		return nil, fmt.Errorf("cannot decode reply from configure: %w", err)
+	}
+
+	for key, val := range re.extensions {
+		v, ok := val.(string)
+		if ok {
+			LogInfo("CONFIGURE RESPONSE KEY: %s, VAL: %s", "COMMON POOL", key, v)
+		}
+
+		vv, ok := val.(bool)
+		if ok {
+			LogInfo("CONFIGURE RESPONSE KEY: %s VAL: %b", "COMMON POOL", key, vv)
+		}
+	}
+
 	subscribeRequest := MiningSubscribeRequest{
 		ua: "cgminer",
 	}
@@ -185,25 +203,25 @@ func (cw *CommonWorker) handleJob(req CommonWorkSubmit) {
 		LogInfo("%s > mining.submit: %s, %s", "COMMON POOL", cw.poolAddr, req.submitRequest.job, req.submitRequest.nonce)
 	}
 
-	// The checking compatability of the share and the extensions of the worker.
-	wRoll, wIsRoll := req.workerExtensions["version-rolling"]
-	pRoll, pIsRoll := cw.cwExtensions["version-rolling"]
-	if isRoll && (!wIsRoll || !wRoll.(bool)) {
-		LogError("ignore share from miner without version rolling", "COMMON POOL")
-		return
-	}
-	if isRoll && (!pIsRoll || !pRoll.(bool)) {
-		LogError("ignore share to pool without version rolling", "COMMON POOL")
-		return
-	}
-	if !isRoll && (wIsRoll && wRoll.(bool)) {
-		LogError("ignore share from miner with version rolling", "COMMON POOL")
-		return
-	}
-	if !isRoll && (pIsRoll && pRoll.(bool)) {
-		LogError("ignore share to pool with version rolling", "COMMON POOL")
-		return
-	}
+	//// The checking compatability of the share and the extensions of the worker.
+	//wRoll, wIsRoll := req.workerExtensions["version-rolling"]
+	//pRoll, pIsRoll := cw.cwExtensions["version-rolling"]
+	//if isRoll && (!wIsRoll || !wRoll.(bool)) {
+	//	LogError("ignore share from miner without version rolling", "COMMON POOL")
+	//	return
+	//}
+	//if isRoll && (!pIsRoll || !pRoll.(bool)) {
+	//	LogError("ignore share to pool without version rolling", "COMMON POOL")
+	//	return
+	//}
+	//if !isRoll && (wIsRoll && wRoll.(bool)) {
+	//	LogError("ignore share from miner with version rolling", "COMMON POOL")
+	//	return
+	//}
+	//if !isRoll && (pIsRoll && pRoll.(bool)) {
+	//	LogError("ignore share to pool with version rolling", "COMMON POOL")
+	//	return
+	//}
 
 	req.params[0] = cw.cwUserName
 	err := cw.client.Call("mining.submit", req.params, nil)
