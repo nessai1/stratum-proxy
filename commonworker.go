@@ -226,6 +226,6 @@ func (cw *CommonWorker) handleJob(req CommonWorkSubmit) {
 	req.params[0] = cw.cwUserName
 	err := cw.client.Call("mining.submit", req.params, nil)
 	if err != nil {
-		LogError("ERROR WHILE SUBMIT TO COMMON POOL", "COMMON POOL")
+		LogError("ERROR WHILE SUBMIT TO COMMON POOL: %s", "COMMON POOL", err.Error())
 	}
 }
