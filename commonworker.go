@@ -100,6 +100,8 @@ func NewCommonWorker(addr, login, password string, workers map[string]*Worker) (
 		return nil, errors.New("access to the common pool denied (authorize)")
 	}
 
+	go cw.ListenJobs()
+
 	return cw, nil
 }
 
