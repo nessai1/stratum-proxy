@@ -136,10 +136,14 @@ func main() {
 	workers.Init()
 
 	if proxyConfig.CPSize > 0 {
-		err = workers.InitCommonWorker(proxyConfig.CPAddr, proxyConfig.CPLogin, proxyConfig.CPPassword)
+		cw, err := NewCommonWorker(proxyConfig.CPAddr, proxyConfig.CPLogin, proxyConfig.CPPassword, workers.workers)
 		if err != nil {
 			panic(fmt.Errorf("cannot start common worker: %w", err))
 		}
+
+		workers.mutex.Lock()
+		workers.commonWorker = cw
+		workers.mutex.Unlock()
 	}
 
 	// Initializing of API and metrics.
