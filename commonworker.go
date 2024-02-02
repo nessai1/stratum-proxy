@@ -159,11 +159,19 @@ func (cw *CommonWorker) handleNotify(client *rpc2.Client, params []interface{}, 
 		LogError("Cannot choose worker for common job (proxy have 0 workers)", "COMMON POOL")
 		return nil
 	}
+	jobID, ok := params[0].(string)
+	if !ok {
+		LogError("Worker can't decode job ID", "COMMON POOL")
+	}
+
 	err := worker.PushCommonJob(params, difficult)
 	if err != nil {
 		LogError("Worker can't get new job: %s", "COMMON POOL", err.Error())
 	} else {
-		LogInfo("Worker %s was choose to make common work", "COMMON POOL", worker.GetID())
+		LogInfo("Worker %s was choose to make common work: JOB_ID: %s", "COMMON POOL", worker.GetID(), params, jobID)
+		cw.mutex.Lock()
+		cw.canReceiveNewJob = false
+		cw.mutex.Unlock()
 	}
 
 	return nil
