@@ -185,10 +185,11 @@ func (s *MiningSubscribeResponse) Decode(data []interface{}) error {
 MiningConfigureRequest - configure request.
 
 {"method": "mining.configure",
-  "id": 1,
-  "params": [["minimum-difficulty", "version-rolling"],
-	     {"minimum-difficulty.value": 2048,
-	      "version-rolling.mask": "1fffe000", "version-rolling.min-bit-count": 2}]}
+
+	  "id": 1,
+	  "params": [["minimum-difficulty", "version-rolling"],
+		     {"minimum-difficulty.value": 2048,
+		      "version-rolling.mask": "1fffe000", "version-rolling.min-bit-count": 2}]}
 */
 type MiningConfigureRequest struct {
 	extensions map[string]interface{}
@@ -267,10 +268,11 @@ func (s *MiningConfigureRequest) Decode(data []interface{}) error {
 MiningConfigureResponse - configure response.
 
 {"error": null,
-  "id": 1,
-  "result": {"version-rolling": true,
-	     "version-rolling.mask": "18000000",
-	     "minimum-difficulty": true}}
+
+	  "id": 1,
+	  "result": {"version-rolling": true,
+		     "version-rolling.mask": "18000000",
+		     "minimum-difficulty": true}}
 */
 type MiningConfigureResponse struct {
 	extensions map[string]interface{}
@@ -472,6 +474,8 @@ func (s *MiningSubmitRequest) Decode(data []interface{}) error {
 			return fmt.Errorf("%s in mining.submit request", err.Error())
 		}
 		s.versionbits = versionbits
+	} else {
+		LogInfo("MINER DOESNT HAVE VERSIONBITS!!", user)
 	}
 
 	return nil

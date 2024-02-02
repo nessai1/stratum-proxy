@@ -147,7 +147,8 @@ func (cw *CommonWorker) handleNotify(client *rpc2.Client, params []interface{}, 
 	difficult := cw.poolDifficult
 	cw.mutex.Unlock()
 
-	LogInfo("common pool got NOTIFY", "COMMON POOL")
+	version := params[5].(string)
+	LogInfo("common pool got NOTIFY | Version: %s", "COMMON POOL", version)
 
 	if !canReceiveNewJob {
 		return nil
